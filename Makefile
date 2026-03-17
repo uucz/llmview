@@ -5,7 +5,7 @@ LDFLAGS := -ldflags "-s -w -X main.version=$(VERSION)"
 
 ## build: build UI + compile the binary
 build: ui
-	CGO_ENABLED=1 go build $(LDFLAGS) -o llmview .
+	CGO_ENABLED=0 go build $(LDFLAGS) -o llmview .
 
 ## ui: build the Svelte frontend and copy to embed location
 ui:
@@ -19,15 +19,9 @@ dev:
 
 ## test: run all tests
 test:
-	go test ./... -v -race
+	CGO_ENABLED=0 go test ./... -v -race
 
 ## clean: remove build artifacts
 clean:
 	rm -f llmview
 	rm -rf dist/ internal/server/ui
-
-## release: cross-compile for major platforms
-release: ui
-	GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go build $(LDFLAGS) -o dist/llmview-darwin-arm64 .
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o dist/llmview-darwin-amd64 .
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o dist/llmview-linux-amd64 .

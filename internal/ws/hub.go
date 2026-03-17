@@ -56,6 +56,9 @@ func (h *Hub) HandleWS(w http.ResponseWriter, r *http.Request) {
 }
 
 // Broadcast sends an event to all connected clients.
+// Uses full Lock (not RLock) because gorilla/websocket does not support
+// concurrent writers. This serializes all broadcasts, which is fine for
+// a local dev tool with a handful of browser tabs.
 func (h *Hub) Broadcast(event storage.WSEvent) {
 	data, err := json.Marshal(event)
 	if err != nil {
@@ -63,14 +66,14 @@ func (h *Hub) Broadcast(event storage.WSEvent) {
 		return
 	}
 
-	h.mu.RLock()
-	defer h.mu.RUnlock()
+	h.mu.Lock()
+	defer h.mu.Unlock()
 
 	for conn := range h.clients {
 		if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
 			log.Printf("[ws] write error: %v", err)
 			conn.Close()
-			// Will be cleaned up on next ReadMessage failure
+			delete(h.clients, conn)
 		}
 	}
 }

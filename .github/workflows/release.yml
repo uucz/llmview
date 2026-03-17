@@ -9,82 +9,44 @@ permissions:
   packages: write
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            goos: darwin
-            goarch: arm64
-          - os: macos-13
-            goos: darwin
-            goarch: amd64
-          - os: ubuntu-latest
-            goos: linux
-            goarch: amd64
-
-    runs-on: ${{ matrix.os }}
-
+  release:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.25'
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Build UI
-        run: |
-          cd ui && npm ci && npm run build
-          cd .. && cp -r ui/build internal/server/ui
+        run: cd ui && npm ci && npm run build && cd .. && cp -r ui/build internal/server/ui
 
-      - name: Build binary
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
-          CGO_ENABLED: 1
+      - name: Build all platforms
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          go build -ldflags "-s -w -X main.version=${VERSION}" \
-            -o llmview-${{ matrix.goos }}-${{ matrix.goarch }} .
+          LDFLAGS="-s -w -X main.version=${VERSION}"
+          mkdir -p dist
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: llmview-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: llmview-${{ matrix.goos }}-${{ matrix.goarch }}
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
+          CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 go build -ldflags "$LDFLAGS" -o dist/llmview-darwin-arm64 .
+          CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/llmview-darwin-amd64 .
+          CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/llmview-linux-amd64 .
+          CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 go build -ldflags "$LDFLAGS" -o dist/llmview-linux-arm64 .
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/llmview-windows-amd64.exe .
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: llmview-*
+          files: dist/llmview-*
           generate_release_notes: true
 
   docker:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Build UI
-        run: |
-          cd ui && npm ci && npm run build
-          cd .. && cp -r ui/build internal/server/ui
 
       - uses: docker/login-action@v3
         with:

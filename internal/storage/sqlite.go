@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // Store handles all SQLite persistence.
@@ -31,10 +31,14 @@ func New(path string) (*Store, error) {
 		path = filepath.Join(dir, "llmview.db")
 	}
 
-	db, err := sql.Open("sqlite3", path+"?_journal_mode=WAL&_busy_timeout=5000")
+	db, err := sql.Open("sqlite", path)
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
 	}
+
+	// Set pragmas for performance (driver-agnostic approach)
+	db.Exec("PRAGMA journal_mode=WAL")
+	db.Exec("PRAGMA busy_timeout=5000")
 
 	s := &Store{db: db}
 	if err := s.migrate(); err != nil {

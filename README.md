@@ -7,12 +7,14 @@
 A local proxy that intercepts LLM API calls and shows them in a real-time dashboard.
 Zero code changes. One binary. Dark mode.
 
-<!-- TODO: Replace with actual GIF -->
-<!-- ![llmview demo](docs/demo.gif) -->
+<!-- TODO: Replace with actual screenshot/GIF -->
+<!--
+<img src="docs/screenshot.png" alt="llmview dashboard" width="720" />
+-->
 
-[![Go](https://github.com/llmview/llmview/actions/workflows/ci.yml/badge.svg)](https://github.com/llmview/llmview/actions)
+[![CI](https://github.com/uucz/llmview/actions/workflows/ci.yml/badge.svg)](https://github.com/uucz/llmview/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/llmview/llmview)](https://goreportcard.com/report/github.com/llmview/llmview)
+[![Go Report Card](https://goreportcard.com/badge/github.com/uucz/llmview)](https://goreportcard.com/report/github.com/uucz/llmview)
 
 </div>
 
@@ -21,10 +23,10 @@ Zero code changes. One binary. Dark mode.
 ## Quick Start
 
 ```bash
-# Install
-brew install llmview/tap/llmview
-# or: go install github.com/llmview/llmview@latest
-# or: docker run -p 4700:4700 ghcr.io/llmview/llmview
+# Install (pick one)
+go install github.com/uucz/llmview@latest
+# or: download from https://github.com/uucz/llmview/releases
+# or: docker run -p 4700:4700 ghcr.io/uucz/llmview
 
 # Run
 llmview
@@ -56,7 +58,7 @@ llmview sits between your AI tools and the API. **You change one environment var
 | **Cost tracking** | Per-call and session-total cost with per-model pricing |
 | **Multi-provider** | OpenAI, Anthropic, Ollama — all through one dashboard |
 | **Zero code changes** | Just set an environment variable |
-| **Single binary** | One 8MB file. No database to install. No Docker required. |
+| **Single binary** | One ~10MB file. No database to install. No Docker required. |
 | **Local & private** | SQLite storage. Nothing leaves your machine. |
 | **Dark theme** | Because you're probably running this at 2am |
 
@@ -121,13 +123,13 @@ curl http://localhost:4700/api/health
 ## Building from Source
 
 ```bash
-git clone https://github.com/llmview/llmview.git
+git clone https://github.com/uucz/llmview.git
 cd llmview
 make build    # builds UI + Go binary
 make test     # runs all tests
 ```
 
-Requires: Go 1.22+, Node.js 18+ (for UI build)
+Requires: Go 1.25+, Node.js 18+ (for UI build). No C compiler needed — pure Go.
 
 ## Roadmap
 

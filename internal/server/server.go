@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/uucz/llmview/internal/cost"
 	"github.com/uucz/llmview/internal/proxy"
@@ -42,7 +43,8 @@ func New(cfg Config) (*Server, error) {
 
 	// Create session
 	sess := &storage.Session{
-		ID: cfg.SessionID,
+		ID:        cfg.SessionID,
+		StartedAt: time.Now(),
 	}
 	if err := store.CreateSession(sess); err != nil {
 		return nil, fmt.Errorf("create session: %w", err)
@@ -75,13 +77,14 @@ func (s *Server) Start() error {
 	mux.HandleFunc("/api/calls", s.handleCalls)
 	mux.HandleFunc("/api/calls/", s.handleCallDetail)
 
-	// Health check
-	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-	})
-
 	// UI — embedded Svelte build
 	mux.Handle("/", embeddedUI())
+
+	// Health check
+	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	})
 
 	addr := fmt.Sprintf(":%d", s.port)
 	log.Printf("llmview listening on http://localhost%s", addr)
