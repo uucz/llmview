@@ -23,7 +23,7 @@ type APICall struct {
 	ResponseBody []byte        `json:"-"`
 	StatusCode   int           `json:"status_code"`
 	StartedAt    time.Time     `json:"started_at"`
-	Duration     time.Duration `json:"duration_ms"`
+	DurationMs   int64         `json:"duration_ms"`
 	InputTokens  int           `json:"input_tokens"`
 	OutputTokens int           `json:"output_tokens"`
 	Cost         float64       `json:"cost"`

@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -110,7 +109,7 @@ func (s *Store) InsertCall(call *APICall) error {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		call.ID, call.SessionID, call.Provider, call.Model, call.Endpoint, call.Method,
 		call.RequestBody, call.ResponseBody, call.StatusCode, call.StartedAt,
-		call.Duration.Milliseconds(), call.InputTokens, call.OutputTokens,
+		call.DurationMs, call.InputTokens, call.OutputTokens,
 		call.Cost, call.Streaming, call.Error,
 	)
 	if err != nil {
@@ -171,16 +170,14 @@ func (s *Store) ListCalls(sessionID string, limit, offset int) ([]APICall, error
 	var calls []APICall
 	for rows.Next() {
 		var c APICall
-		var durMs int64
 		err := rows.Scan(
 			&c.ID, &c.SessionID, &c.Provider, &c.Model, &c.Endpoint, &c.Method,
-			&c.StatusCode, &c.StartedAt, &durMs, &c.InputTokens, &c.OutputTokens,
+			&c.StatusCode, &c.StartedAt, &c.DurationMs, &c.InputTokens, &c.OutputTokens,
 			&c.Cost, &c.Streaming, &c.Error,
 		)
 		if err != nil {
 			return nil, err
 		}
-		c.Duration = time.Duration(durMs) * time.Millisecond
 		calls = append(calls, c)
 	}
 	return calls, rows.Err()
@@ -198,17 +195,15 @@ func (s *Store) GetCallDetail(callID string) (*APICallDetail, error) {
 		FROM api_calls WHERE id = ?`, callID)
 
 	var d APICallDetail
-	var durMs int64
 	var reqBody, respBody []byte
 	err := row.Scan(
 		&d.ID, &d.SessionID, &d.Provider, &d.Model, &d.Endpoint, &d.Method,
 		&reqBody, &respBody, &d.StatusCode, &d.StartedAt,
-		&durMs, &d.InputTokens, &d.OutputTokens, &d.Cost, &d.Streaming, &d.Error,
+		&d.DurationMs, &d.InputTokens, &d.OutputTokens, &d.Cost, &d.Streaming, &d.Error,
 	)
 	if err != nil {
 		return nil, err
 	}
-	d.Duration = time.Duration(durMs) * time.Millisecond
 	d.RequestBody = string(reqBody)
 	d.ResponseBody = string(respBody)
 	return &d, nil

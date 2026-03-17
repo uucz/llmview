@@ -149,7 +149,7 @@ func (p *Proxy) handleProxy(w http.ResponseWriter, r *http.Request, pc ProviderC
 		ResponseBody: respBody,
 		StatusCode:   resp.StatusCode,
 		StartedAt:    startedAt,
-		Duration:     duration,
+		DurationMs:   duration.Milliseconds(),
 		InputTokens:  usage.InputTokens,
 		OutputTokens: usage.OutputTokens,
 		Cost:         callCost,
@@ -260,7 +260,7 @@ func (p *Proxy) recordError(callID, endpoint string, pc ProviderConfig, model st
 		RequestBody: reqBody,
 		StatusCode:  502,
 		StartedAt:   startedAt,
-		Duration:    time.Since(startedAt),
+		DurationMs:  time.Since(startedAt).Milliseconds(),
 		Error:       err.Error(),
 	}
 	if storeErr := p.store.InsertCall(call); storeErr != nil {
@@ -272,7 +272,7 @@ func (p *Proxy) recordError(callID, endpoint string, pc ProviderConfig, model st
 		Data: storage.CallEndEvent{
 			ID:         callID,
 			StatusCode: 502,
-			DurationMs: call.Duration.Milliseconds(),
+			DurationMs: call.DurationMs,
 			Error:      err.Error(),
 		},
 	})
