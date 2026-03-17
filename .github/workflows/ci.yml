@@ -29,7 +29,7 @@ jobs:
         run: CGO_ENABLED=0 go build -o llmview .
 
       - name: Test
-        run: CGO_ENABLED=0 go test ./... -race -count=1
+        run: go test ./... -race -count=1
 
   lint:
     runs-on: ubuntu-latest
@@ -46,4 +46,4 @@ jobs:
           echo '<!doctype html>' > internal/server/ui/index.html
 
       - name: Vet
-        run: CGO_ENABLED=0 go vet ./...
+        run: go vet ./...

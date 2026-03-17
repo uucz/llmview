@@ -19,7 +19,7 @@ dev:
 
 ## test: run all tests
 test:
-	CGO_ENABLED=0 go test ./... -v -race
+	go test ./... -v -race
 
 ## clean: remove build artifacts
 clean:
