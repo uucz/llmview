@@ -7,6 +7,8 @@
 A local proxy that intercepts LLM API calls and shows them in a real-time dashboard.
 Zero code changes. One binary. Dark mode.
 
+[English](README.md) | [中文](README_zh.md)
+
 <!-- TODO: Replace with actual screenshot/GIF -->
 <!--
 <img src="docs/screenshot.png" alt="llmview dashboard" width="720" />
@@ -130,6 +132,68 @@ make test     # runs all tests
 ```
 
 Requires: Go 1.25+, Node.js 18+ (for UI build). No C compiler needed — pure Go.
+
+## Troubleshooting
+
+<details>
+<summary><b>macOS: "permission denied" when running the binary</b></summary>
+
+Downloaded binaries don't have execute permission by default. Fix:
+
+```bash
+chmod +x llmview-darwin-arm64
+./llmview-darwin-arm64
+```
+</details>
+
+<details>
+<summary><b>macOS: "cannot be opened because the developer cannot be verified"</b></summary>
+
+macOS Gatekeeper blocks unsigned binaries. Go to **System Settings > Privacy & Security**, scroll down, and click **"Open Anyway"**. Or remove the quarantine attribute:
+
+```bash
+xattr -d com.apple.quarantine llmview-darwin-arm64
+```
+</details>
+
+<details>
+<summary><b>"command not found: llmview"</b></summary>
+
+If you downloaded the binary, you need to use the full path or `./` prefix:
+
+```bash
+# Run from current directory
+./llmview-darwin-arm64
+
+# Or move to a directory in your PATH
+sudo mv llmview-darwin-arm64 /usr/local/bin/llmview
+llmview
+```
+
+If you used `go install`, make sure `$GOPATH/bin` (usually `~/go/bin`) is in your `PATH`:
+
+```bash
+export PATH="$HOME/go/bin:$PATH"
+```
+</details>
+
+<details>
+<summary><b>Common mistakes</b></summary>
+
+```bash
+# WRONG: "go" is for compiling source code, not running binaries
+go llmview
+
+# WRONG: "run" is not a system command
+run llmview
+
+# WRONG: just the filename doesn't work without PATH setup
+llmview-darwin-arm64
+
+# CORRECT:
+./llmview-darwin-arm64
+```
+</details>
 
 ## Roadmap
 
