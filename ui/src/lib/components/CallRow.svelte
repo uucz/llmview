@@ -3,11 +3,14 @@
   import { formatDuration, formatCost, formatTokens, formatTime, statusColor } from '$lib/utils/format';
   import DetailPanel from './DetailPanel.svelte';
 
-  let { call, expanded = false, ontoggle, index = 0 }: {
+  let { call, expanded = false, ontoggle, index = 0, compareMode = false, selected = false, focused = false }: {
     call: APICall;
     expanded: boolean;
     ontoggle: () => void;
     index?: number;
+    compareMode?: boolean;
+    selected?: boolean;
+    focused?: boolean;
   } = $props();
 
   let isStreaming = $derived(!call.completed && call.streaming);
@@ -36,6 +39,8 @@
   class:streaming={isStreaming}
   class:has-error={call.status_code >= 400}
   class:expanded
+  class:compare-selected={selected}
+  class:focused
   style="animation-delay: {Math.min(index * 0.06, 0.3)}s"
   onclick={ontoggle}
   role="button"
@@ -50,6 +55,15 @@
   {/if}
 
   <div class="call-main">
+    {#if compareMode}
+      <div class="compare-dot" class:active={selected}>
+        {#if selected}
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><circle cx="12" cy="12" r="6" /></svg>
+        {:else}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><circle cx="12" cy="12" r="6" /></svg>
+        {/if}
+      </div>
+    {/if}
     <div class="call-left">
       <span class="provider-badge" style="--pcolor: {providerVar(call.provider)}">
         {providerLabel(call.provider)}
@@ -115,6 +129,30 @@
 
   .call.expanded {
     border-color: rgba(217, 119, 87, 0.25);
+  }
+
+  .call.focused {
+    border-color: rgba(217, 119, 87, 0.3);
+    box-shadow: 0 0 0 1px rgba(217, 119, 87, 0.15);
+  }
+
+  .call.compare-selected {
+    border-color: var(--border-focus);
+    background: var(--active-orange-bg);
+  }
+
+  .compare-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    transition: color 0.15s;
+  }
+
+  .compare-dot.active {
+    color: var(--brand-orange);
   }
 
   .accent-bar {

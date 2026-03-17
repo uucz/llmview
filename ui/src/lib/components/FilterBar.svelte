@@ -1,6 +1,11 @@
 <script lang="ts">
   import { filters, filteredCalls, availableProviders, exportJSON, exportCSV } from '$lib/stores/events';
 
+  let { compareMode = false, ontogglecompare = () => {} }: {
+    compareMode?: boolean;
+    ontogglecompare?: () => void;
+  } = $props();
+
   let showExport = $state(false);
 
   function toggleProvider(p: string) {
@@ -80,6 +85,15 @@
 
   <div class="filter-right">
     <span class="count">{$filteredCalls.length}</span>
+
+    <button class="compare-btn" class:active={compareMode} onclick={ontogglecompare} title="Compare two calls">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+        <path d="M16 3h5v5" />
+        <line x1="21" y1="3" x2="14" y2="10" />
+        <path d="M8 21H3v-5" />
+        <line x1="3" y1="21" x2="10" y2="14" />
+      </svg>
+    </button>
 
     <div class="export-wrapper">
       <button class="export-btn" onclick={() => showExport = !showExport} title="Export data">
@@ -202,6 +216,31 @@
     font-size: 11px;
     color: var(--text-tertiary);
     font-variant-numeric: tabular-nums;
+  }
+
+  .compare-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .compare-btn:hover {
+    border-color: var(--border-focus);
+    color: var(--brand-orange);
+  }
+
+  .compare-btn.active {
+    background: var(--active-orange-bg);
+    border-color: var(--border-focus);
+    color: var(--brand-orange);
   }
 
   .export-wrapper {
