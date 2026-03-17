@@ -25,7 +25,7 @@
       case 'openai': return 'var(--color-openai)';
       case 'anthropic': return 'var(--color-anthropic)';
       case 'ollama': return 'var(--color-ollama)';
-      default: return 'var(--text-2)';
+      default: return 'var(--text-tertiary)';
     }
   }
 </script>
@@ -35,22 +35,22 @@
   class:streaming={isStreaming}
   class:has-error={call.status_code >= 400}
   class:expanded
-  style="animation-delay: {Math.min(index * 0.04, 0.3)}s"
+  style="animation-delay: {Math.min(index * 0.06, 0.3)}s"
   onclick={ontoggle}
   role="button"
   tabindex="0"
   onkeydown={(e) => e.key === 'Enter' && ontoggle()}
 >
   {#if isStreaming}
-    <div class="streaming-bar"></div>
+    <div class="accent-bar streaming-bar"></div>
+  {/if}
+  {#if call.status_code >= 400}
+    <div class="accent-bar error-bar"></div>
   {/if}
 
   <div class="call-main">
     <div class="call-left">
-      <span
-        class="provider-badge"
-        style="--pcolor: {providerVar(call.provider)}"
-      >
+      <span class="provider-badge" style="--pcolor: {providerVar(call.provider)}">
         {providerLabel(call.provider)}
       </span>
       <span class="model">{call.model || call.endpoint}</span>
@@ -58,8 +58,18 @@
     </div>
     <div class="call-right">
       {#if call.completed}
-        <span class="status-code" style="color: {statusColor(call.status_code)}">{call.status_code}</span>
-        <span class="tokens">{formatTokens(call.input_tokens)}<span class="arrow">&#8594;</span>{formatTokens(call.output_tokens)}</span>
+        <span class="status-badge" style="color: {statusColor(call.status_code)}; background: {statusColor(call.status_code)}18; border-color: {statusColor(call.status_code)}30">
+          {call.status_code}
+        </span>
+        <span class="tokens">
+          {formatTokens(call.input_tokens)}
+          <!-- Arrow right icon, inline -->
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+          {formatTokens(call.output_tokens)}
+        </span>
         <span class="duration">{formatDuration(call.duration_ms)}</span>
         <span class="cost" class:free={call.cost === 0}>{formatCost(call.cost)}</span>
       {:else}
@@ -86,10 +96,11 @@
 <style>
   .call {
     position: relative;
-    padding: 11px 16px;
+    padding: 12px 16px;
+    padding-left: 20px;
     border-radius: var(--radius);
     background: var(--surface-1);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     cursor: pointer;
     margin-bottom: 6px;
     transition: border-color 0.2s;
@@ -97,27 +108,31 @@
     overflow: hidden;
   }
 
+  /* Hover: only border-color, quiet confidence */
   .call:hover {
-    border-color: var(--border-hover);
+    border-color: rgba(217, 119, 87, 0.2);
   }
 
   .call.expanded {
-    border-color: var(--border-hover);
+    border-color: rgba(217, 119, 87, 0.25);
   }
 
-  /* Streaming: left accent bar */
-  .streaming-bar {
+  /* Left accent bars */
+  .accent-bar {
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
     width: 3px;
-    background: var(--accent);
+  }
+
+  .streaming-bar {
+    background: var(--brand-blue);
     animation: streamGlow 2s ease-in-out infinite;
   }
 
-  .call.has-error {
-    border-left: 3px solid var(--red);
+  .error-bar {
+    background: var(--risk-danger);
   }
 
   .call-main {
@@ -142,60 +157,71 @@
     flex-shrink: 0;
   }
 
+  /* Provider badge: low-opacity bg + subtle border (per DESIGN.md badge spec) */
   .provider-badge {
-    font-family: var(--font-sans);
+    font-family: var(--font-heading);
     font-size: 9.5px;
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     background: color-mix(in srgb, var(--pcolor) 10%, transparent);
     color: var(--pcolor);
-    border: 1px solid color-mix(in srgb, var(--pcolor) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--pcolor) 18%, transparent);
     flex-shrink: 0;
     line-height: 1.5;
   }
 
   .model {
+    font-family: var(--font-body);
     font-weight: 500;
-    color: var(--text-0);
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 13px;
+    font-size: 13.5px;
   }
 
   .time {
+    font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--text-2);
+    color: var(--text-tertiary);
     flex-shrink: 0;
   }
 
-  .status-code {
-    font-family: var(--font-sans);
+  /* Status code badge: semantic color bg at ~9% opacity */
+  .status-badge {
+    font-family: var(--font-heading);
     font-weight: 700;
-    font-size: 11px;
-    min-width: 28px;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid;
     text-align: center;
+    min-width: 36px;
   }
 
   .tokens {
-    color: var(--text-1);
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
     font-size: 12px;
     min-width: 100px;
     text-align: right;
     font-variant-numeric: tabular-nums;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
   }
 
-  .arrow {
-    color: var(--text-2);
-    margin: 0 3px;
-    font-size: 10px;
+  .arrow-icon {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
   }
 
   .duration {
-    color: var(--text-2);
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
     font-size: 12px;
     min-width: 52px;
     text-align: right;
@@ -203,7 +229,8 @@
   }
 
   .cost {
-    color: var(--green);
+    font-family: var(--font-mono);
+    color: var(--brand-green);
     font-size: 12px;
     font-weight: 600;
     min-width: 60px;
@@ -212,7 +239,7 @@
   }
 
   .cost.free {
-    color: var(--text-2);
+    color: var(--text-tertiary);
     font-weight: 400;
   }
 
@@ -220,8 +247,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    color: var(--accent);
-    font-family: var(--font-sans);
+    color: var(--brand-blue);
+    font-family: var(--font-heading);
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
@@ -232,24 +259,25 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--accent);
-    animation: blink 1.2s ease-in-out infinite;
+    background: var(--brand-blue);
+    animation: pulse 1.2s ease-in-out infinite;
   }
 
   .call-detail {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border-subtle);
     animation: fadeIn 0.2s ease;
   }
 
   .stream-text {
     padding: 12px 14px;
-    background: var(--surface-0);
+    background: var(--surface-2);
     border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--text-1);
+    color: var(--text-secondary);
     max-height: 320px;
     overflow-y: auto;
     white-space: pre-wrap;
@@ -259,10 +287,10 @@
 
   .error-box {
     padding: 10px 14px;
-    background: var(--red-dim);
-    border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
+    background: rgba(192, 90, 60, 0.08);
+    border: 1px solid rgba(192, 90, 60, 0.18);
     border-radius: var(--radius-sm);
-    color: var(--red);
+    color: var(--risk-danger);
     font-size: 12px;
     margin-bottom: 8px;
   }

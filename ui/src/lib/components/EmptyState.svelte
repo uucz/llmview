@@ -1,9 +1,13 @@
 <div class="empty">
   <div class="empty-icon">
-    <div class="icon-box"></div>
+    <!-- Terminal icon — line-art -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="48" height="48">
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
+    </svg>
   </div>
   <h2>Waiting for LLM traffic</h2>
-  <p>Point your LLM client through llmview to get started.</p>
+  <p>Point your LLM client through llmview to start monitoring.</p>
   <div class="commands">
     <div class="cmd">
       <span class="cmd-label">OpenAI</span>
@@ -32,29 +36,24 @@
   }
 
   .empty-icon {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    color: var(--text-tertiary);
+    opacity: 0.25;
     animation: float 4s ease-in-out infinite;
   }
 
-  .icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius);
-    background: var(--accent-dim);
-    border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
-  }
-
   h2 {
-    font-family: var(--font-sans);
+    font-family: var(--font-heading);
     font-size: 18px;
     font-weight: 600;
-    color: var(--text-1);
+    color: var(--text-secondary);
     margin-bottom: 6px;
     letter-spacing: -0.01em;
   }
 
   p {
-    color: var(--text-2);
+    font-family: var(--font-body);
+    color: var(--text-tertiary);
     font-size: 13px;
     margin-bottom: 32px;
   }
@@ -75,11 +74,11 @@
   }
 
   .cmd-label {
-    font-family: var(--font-sans);
+    font-family: var(--font-heading);
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-2);
+    color: var(--text-tertiary);
     min-width: 72px;
     text-align: right;
     font-weight: 600;
@@ -87,18 +86,19 @@
 
   code {
     flex: 1;
+    font-family: var(--font-mono);
     background: var(--surface-2);
     padding: 9px 14px;
     border-radius: var(--radius-sm);
-    color: var(--accent);
+    color: var(--brand-orange);
     font-size: 12px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     user-select: all;
     cursor: text;
     transition: border-color 0.2s;
   }
 
   code:hover {
-    border-color: var(--border-hover);
+    border-color: rgba(217, 119, 87, 0.2);
   }
 </style>

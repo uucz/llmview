@@ -38,11 +38,13 @@
     display: flex;
     flex-direction: column;
     background: var(--surface-0);
+    transition: background 0.25s;
   }
 
   main {
     flex: 1;
-    padding: 18px 24px;
+    padding: 20px 28px;
+    animation: fadeUp 0.3s ease both;
   }
 
   .timeline {

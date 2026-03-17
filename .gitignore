@@ -2,6 +2,9 @@
 llmview
 dist/
 
+# Claude
+CLAUDE.md
+
 # Go
 *.exe
 *.exe~

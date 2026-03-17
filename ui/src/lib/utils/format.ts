@@ -25,9 +25,10 @@ export function formatTime(ts: number): string {
   return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
+// Returns semantic CSS color for status codes
 export function statusColor(code: number): string {
-  if (code === 0) return 'var(--text-2)';
-  if (code >= 200 && code < 300) return 'var(--green)';
-  if (code >= 400 && code < 500) return 'var(--orange)';
-  return 'var(--red)';
+  if (code === 0) return 'var(--text-tertiary)';
+  if (code >= 200 && code < 300) return '#788c5d'; // brand-green
+  if (code >= 400 && code < 500) return '#c4912e'; // warn
+  return '#c05a3c'; // danger
 }
