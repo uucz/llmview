@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/llmview/llmview/internal/server"
+	"github.com/uucz/llmview/internal/server"
 )
 
 var version = "dev"

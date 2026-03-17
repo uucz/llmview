@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"github.com/llmview/llmview/internal/storage"
+	"github.com/uucz/llmview/internal/storage"
 )
 
 var upgrader = websocket.Upgrader{

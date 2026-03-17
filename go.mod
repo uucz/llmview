@@ -1,4 +1,4 @@
-module github.com/llmview/llmview
+module github.com/uucz/llmview
 
 go 1.22.0
 

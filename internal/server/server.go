@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/llmview/llmview/internal/cost"
-	"github.com/llmview/llmview/internal/proxy"
-	"github.com/llmview/llmview/internal/storage"
-	"github.com/llmview/llmview/internal/ws"
+	"github.com/uucz/llmview/internal/cost"
+	"github.com/uucz/llmview/internal/proxy"
+	"github.com/uucz/llmview/internal/storage"
+	"github.com/uucz/llmview/internal/ws"
 )
 
 // Server is the main HTTP server that mounts proxy, API, WebSocket, and UI.

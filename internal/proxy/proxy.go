@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/llmview/llmview/internal/cost"
-	"github.com/llmview/llmview/internal/storage"
-	"github.com/llmview/llmview/internal/ws"
+	"github.com/uucz/llmview/internal/cost"
+	"github.com/uucz/llmview/internal/storage"
+	"github.com/uucz/llmview/internal/ws"
 )
 
 // Proxy intercepts LLM API calls, logs them, and forwards to upstream.

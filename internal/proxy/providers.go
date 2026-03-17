@@ -3,7 +3,7 @@ package proxy
 import (
 	"encoding/json"
 
-	"github.com/llmview/llmview/internal/storage"
+	"github.com/uucz/llmview/internal/storage"
 )
 
 // ProviderConfig defines the upstream target for each provider.

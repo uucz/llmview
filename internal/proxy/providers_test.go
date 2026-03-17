@@ -3,7 +3,7 @@ package proxy
 import (
 	"testing"
 
-	"github.com/llmview/llmview/internal/storage"
+	"github.com/uucz/llmview/internal/storage"
 )
 
 func TestExtractModelOpenAI(t *testing.T) {
