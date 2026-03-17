@@ -29,6 +29,7 @@ type Config struct {
 	Port      int
 	DBPath    string
 	SessionID string
+	Budget    float64
 }
 
 // New creates and configures the server.
@@ -50,7 +51,7 @@ func New(cfg Config) (*Server, error) {
 		return nil, fmt.Errorf("create session: %w", err)
 	}
 
-	p := proxy.New(store, hub, calc, cfg.SessionID)
+	p := proxy.New(store, hub, calc, cfg.SessionID, cfg.Budget)
 
 	return &Server{
 		port:      cfg.Port,
@@ -79,6 +80,12 @@ func (s *Server) Start() error {
 
 	// UI — embedded Svelte build
 	mux.Handle("/", embeddedUI())
+
+	// Replay endpoint
+	mux.HandleFunc("/api/replay", s.handleReplay)
+
+	// Config endpoint (budget info)
+	mux.HandleFunc("/api/config", s.handleConfig)
 
 	// Health check
 	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
@@ -137,6 +144,43 @@ func (s *Server) handleCallDetail(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(detail)
+}
+
+func (s *Server) handleReplay(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req proxy.ReplayRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	if req.CallID == "" {
+		http.Error(w, "call_id required", http.StatusBadRequest)
+		return
+	}
+
+	statusCode, err := s.proxy.Replay(req.CallID, req.Overrides)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"error":       err.Error(),
+			"status_code": statusCode,
+		})
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status_code": statusCode,
+	})
+}
+
+func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"budget": s.proxy.Budget(),
+	})
 }
 
 // Close cleans up server resources.

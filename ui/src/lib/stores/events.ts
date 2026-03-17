@@ -48,11 +48,17 @@ export interface Filters {
   query: string;
 }
 
+export interface AppConfig {
+  budget: number;
+}
+
 export const calls = writable<Map<string, APICall>>(new Map());
 export const session = writable<SessionStats>({ total_cost: 0, total_tokens: 0, request_count: 0 });
 export const connected = writable(false);
 export const callDetails = writable<Map<string, APICallDetail>>(new Map());
 export const filters = writable<Filters>({ providers: new Set(), status: 'all', query: '' });
+export const appConfig = writable<AppConfig>({ budget: 0 });
+export const budgetExceeded = writable(false);
 
 // Unfiltered sorted calls (for empty-state check)
 export const sortedCalls = derived(calls, ($calls) => {
@@ -102,6 +108,7 @@ export function connectWS() {
   ws.onopen = () => {
     connected.set(true);
     loadHistory();
+    loadConfig();
   };
   ws.onclose = () => {
     connected.set(false);
@@ -161,6 +168,10 @@ function handleEvent(event: { type: string; data: any }) {
     }
     case 'session_update': {
       session.set(event.data);
+      break;
+    }
+    case 'budget_exceeded': {
+      budgetExceeded.set(true);
       break;
     }
   }
@@ -236,6 +247,30 @@ export function exportCSV() {
   );
   const csv = [headers.join(','), ...rows].join('\n');
   downloadBlob(new Blob([csv], { type: 'text/csv' }), `llmview-${Date.now()}.csv`);
+}
+
+async function loadConfig() {
+  try {
+    const resp = await fetch('/api/config');
+    if (resp.ok) {
+      const cfg = await resp.json();
+      appConfig.set({ budget: cfg.budget || 0 });
+    }
+  } catch {}
+}
+
+// Replay a stored call with optional overrides
+export async function replayCall(callId: string, overrides: Record<string, any> = {}): Promise<{ status_code?: number; error?: string }> {
+  try {
+    const resp = await fetch('/api/replay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ call_id: callId, overrides }),
+    });
+    return await resp.json();
+  } catch (e: any) {
+    return { error: e.message || 'Replay failed' };
+  }
 }
 
 function downloadBlob(blob: Blob, filename: string) {

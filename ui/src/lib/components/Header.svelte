@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { session, connected } from '$lib/stores/events';
+  import { session, connected, appConfig, budgetExceeded } from '$lib/stores/events';
   import { theme, toggleTheme } from '$lib/stores/theme';
   import { formatCost, formatTokens } from '$lib/utils/format';
+
+  let budgetPct = $derived($appConfig.budget > 0 ? Math.min(($session.total_cost / $appConfig.budget) * 100, 100) : 0);
+  let budgetColor = $derived(budgetPct >= 90 ? 'var(--risk-danger)' : budgetPct >= 70 ? 'var(--brand-orange)' : 'var(--brand-green)');
 </script>
 
 <header>
@@ -68,6 +71,17 @@
         </div>
       </div>
     </div>
+
+    {#if $appConfig.budget > 0}
+      <div class="budget-pill" class:exceeded={$budgetExceeded} title="Budget: {formatCost($session.total_cost)} / {formatCost($appConfig.budget)}">
+        <div class="budget-track">
+          <div class="budget-fill" style="width: {budgetPct}%; background: {budgetColor}"></div>
+        </div>
+        <span class="budget-text" style="color: {budgetColor}">
+          {formatCost($session.total_cost)}<span class="budget-sep">/</span>{formatCost($appConfig.budget)}
+        </span>
+      </div>
+    {/if}
 
     <!-- Theme toggle -->
     <button class="theme-toggle" onclick={toggleTheme} title="Toggle theme">
@@ -252,6 +266,54 @@
     font-weight: 600;
     color: var(--text-tertiary);
     letter-spacing: 0.1em;
+  }
+
+  /* Budget pill */
+  .budget-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--surface-1);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.2s;
+  }
+
+  .budget-pill.exceeded {
+    border-color: rgba(192, 90, 60, 0.4);
+    animation: budgetPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes budgetPulse {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 8px rgba(192, 90, 60, 0.3); }
+  }
+
+  .budget-track {
+    width: 48px;
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .budget-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease, background 0.3s;
+  }
+
+  .budget-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .budget-sep {
+    color: var(--text-tertiary);
+    margin: 0 1px;
   }
 
   .theme-toggle {

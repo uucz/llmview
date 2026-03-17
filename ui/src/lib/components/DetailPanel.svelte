@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { APICallDetail } from '$lib/stores/events';
-  import { fetchDetail } from '$lib/stores/events';
+  import { fetchDetail, replayCall } from '$lib/stores/events';
 
   let { callId, streamText = '', error = '', completed = true }: {
     callId: string;
@@ -13,6 +13,9 @@
   let loading = $state(true);
   let activeTab = $state<'messages' | 'request' | 'response'>('messages');
   let copied = $state(false);
+  let replayModel = $state('');
+  let replaying = $state(false);
+  let replayResult = $state<{ status_code?: number; error?: string } | null>(null);
 
   interface ChatMessage {
     role: string;
@@ -137,6 +140,15 @@
     }
   }
 
+  async function handleReplay() {
+    replaying = true;
+    replayResult = null;
+    const overrides: Record<string, any> = {};
+    if (replayModel.trim()) overrides.model = replayModel.trim();
+    replayResult = await replayCall(callId, overrides);
+    replaying = false;
+  }
+
   async function copyToClipboard() {
     let text = '';
     if (activeTab === 'messages') {
@@ -202,6 +214,39 @@
           </svg>
         {/if}
       </button>
+    </div>
+
+    <div class="replay-bar">
+      <div class="replay-left">
+        <svg class="replay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+          <polyline points="1 4 1 10 7 10" />
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+        </svg>
+        <input
+          type="text"
+          class="replay-model"
+          placeholder="Override model (optional)"
+          bind:value={replayModel}
+          onkeydown={(e) => e.key === 'Enter' && !replaying && handleReplay()}
+        />
+      </div>
+      <button class="replay-btn" onclick={handleReplay} disabled={replaying}>
+        {#if replaying}
+          <span class="replay-spinner"></span>
+          Replaying...
+        {:else}
+          Replay
+        {/if}
+      </button>
+      {#if replayResult}
+        <span class="replay-result" class:error={!!replayResult.error}>
+          {#if replayResult.error}
+            {replayResult.error}
+          {:else}
+            → {replayResult.status_code}
+          {/if}
+        </span>
+      {/if}
     </div>
 
     <div class="detail-body">
@@ -347,6 +392,93 @@
     border-color: var(--border-focus);
     color: var(--brand-orange);
     background: var(--active-orange-bg);
+  }
+
+  /* Replay bar */
+  .replay-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+
+  .replay-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .replay-icon {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .replay-model {
+    flex: 1;
+    padding: 4px 8px;
+    background: var(--surface-1);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-primary);
+    outline: none;
+  }
+
+  .replay-model::placeholder { color: var(--text-tertiary); }
+  .replay-model:focus { border-color: var(--border-focus); }
+
+  .replay-btn {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 5px 14px;
+    background: var(--brand-orange);
+    color: #141413;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .replay-btn:hover { opacity: 0.85; }
+  .replay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .replay-spinner {
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(20, 20, 19, 0.3);
+    border-top-color: #141413;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .replay-result {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--brand-green);
+    flex-shrink: 0;
+  }
+
+  .replay-result.error {
+    color: var(--risk-danger);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .detail-body {

@@ -17,6 +17,7 @@ var version = "dev"
 func main() {
 	port := flag.Int("port", 4700, "port to listen on")
 	dbPath := flag.String("db", "", "SQLite database path (default: ~/.llmview/llmview.db)")
+	budget := flag.Float64("budget", 0, "max session cost in USD (0 = unlimited)")
 	showVersion := flag.Bool("version", false, "show version")
 	flag.Parse()
 
@@ -31,6 +32,7 @@ func main() {
 		Port:      *port,
 		DBPath:    *dbPath,
 		SessionID: sessionID,
+		Budget:    *budget,
 	})
 	if err != nil {
 		log.Fatalf("failed to start: %v", err)

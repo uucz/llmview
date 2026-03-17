@@ -2,10 +2,10 @@
 
 # llmview
 
-**See what your AI is thinking. See what it costs.**
+**Chrome DevTools for LLM APIs.**
 
-A local proxy that intercepts LLM API calls and shows them in a real-time dashboard.
-Zero code changes. One binary. Dark mode.
+A local proxy that intercepts, inspects, replays, and budgets your LLM API calls — with a real-time dashboard.
+Zero code changes. One binary. Interactive debugging.
 
 [English](README.md) | [中文](README_zh.md)
 
@@ -59,6 +59,8 @@ llmview sits between your AI tools and the API. **You change one environment var
 | **Live token streaming** | See the response being generated token-by-token |
 | **Request/response viewer** | Parsed message threads + syntax-highlighted JSON bodies |
 | **Filter & search** | Filter by provider, status code, model. Search across all calls. |
+| **Request replay** | Re-send any call with modified parameters or a different model |
+| **Budget enforcement** | Set a session cost ceiling — proxy returns 402 when exceeded |
 | **Export** | Download session data as JSON or CSV |
 | **Cost tracking** | Per-call and session-total cost with per-model pricing |
 | **Multi-provider** | OpenAI, Anthropic, Ollama — all through one dashboard |
@@ -101,6 +103,9 @@ llmview --port 8080
 
 # Custom database path (default: ~/.llmview/llmview.db)
 llmview --db /path/to/data.db
+
+# Set a budget ceiling (proxy returns 402 when exceeded)
+llmview --budget 5.00
 ```
 
 ### Model Pricing
@@ -120,6 +125,14 @@ curl http://localhost:4700/api/calls?limit=20&offset=0
 
 # Get full request/response for a specific call
 curl http://localhost:4700/api/calls/{id}
+
+# Replay a call with overrides
+curl -X POST http://localhost:4700/api/replay \
+  -H 'Content-Type: application/json' \
+  -d '{"call_id":"abc123","overrides":{"model":"gpt-4o-mini"}}'
+
+# Get config (budget info)
+curl http://localhost:4700/api/config
 
 # Health check
 curl http://localhost:4700/api/health
@@ -206,9 +219,11 @@ llmview-darwin-arm64
 - [x] Request/response detail viewer with message thread parsing
 - [x] Export sessions to JSON/CSV
 - [x] Filter & search calls by provider, status, model
+- [x] Request replay with parameter overrides
+- [x] Budget enforcement with real-time progress bar
+- [x] Prompt diff viewer (compare request variations)
 - [ ] VS Code extension
 - [ ] Breakpoints (pause before dangerous operations)
-- [ ] Prompt diff viewer (compare request variations)
 - [ ] Session history browser
 
 ## License
