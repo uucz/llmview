@@ -19,9 +19,10 @@
       <EmptyState />
     {:else}
       <div class="timeline">
-        {#each $sortedCalls as call (call.id)}
+        {#each $sortedCalls as call, i (call.id)}
           <CallRow
             {call}
+            index={i}
             expanded={expandedId === call.id}
             ontoggle={() => toggle(call.id)}
           />
@@ -36,11 +37,12 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: var(--surface-0);
   }
 
   main {
     flex: 1;
-    padding: 16px 20px;
+    padding: 18px 24px;
   }
 
   .timeline {

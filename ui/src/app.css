@@ -1,41 +1,118 @@
+/* ============================================================
+   llmview — Design System
+   Inspired by Anthropic/Claude aesthetic: warm minimal, quiet confidence
+   ============================================================ */
+
 :root {
-  --bg-0: #09090b;
-  --bg-1: #111113;
-  --bg-2: #1a1a1f;
-  --bg-3: #222228;
-  --border: #2a2a32;
-  --border-hover: #3a3a45;
-  --text-0: #fafafa;
-  --text-1: #a1a1aa;
-  --text-2: #71717a;
+  /* Surface hierarchy (warm dark) */
+  --surface-0: #0e0e0d;
+  --surface-1: #161615;
+  --surface-2: #1d1d1b;
+  --surface-3: #252523;
+  --surface-4: #2e2e2b;
+
+  /* Text hierarchy */
+  --text-0: #f5f4f0;
+  --text-1: #a8a69e;
+  --text-2: #6e6d66;
+
+  /* Borders — semi-transparent, never solid */
+  --border: rgba(250, 249, 245, 0.07);
+  --border-hover: rgba(250, 249, 245, 0.13);
+  --border-accent: rgba(0, 212, 255, 0.25);
+
+  /* Accent — cyan for "live" technical feel */
   --accent: #00d4ff;
-  --accent-dim: #00d4ff22;
-  --green: #00ff88;
-  --green-dim: #00ff8822;
-  --red: #ff4466;
-  --red-dim: #ff446622;
-  --orange: #ff9f43;
-  --orange-dim: #ff9f4322;
+  --accent-soft: #5ce0ff;
+  --accent-dim: rgba(0, 212, 255, 0.08);
+
+  /* Semantic colors */
+  --green: #66d98e;
+  --green-dim: rgba(102, 217, 142, 0.10);
+  --red: #e05c5c;
+  --red-dim: rgba(224, 92, 92, 0.10);
+  --orange: #d4a04a;
+  --orange-dim: rgba(212, 160, 74, 0.10);
   --purple: #a78bfa;
-  --purple-dim: #a78bfa22;
-  --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --radius: 8px;
-  --radius-sm: 4px;
+  --purple-dim: rgba(167, 139, 250, 0.10);
+
+  /* Provider colors */
+  --color-openai: #10a37f;
+  --color-anthropic: #d4a274;
+  --color-ollama: #808080;
+
+  /* Shadows — heavier in dark mode for visible depth */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
+
+  /* Typography */
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ---- Reset ---- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: var(--bg-0);
+  background: var(--surface-0);
   color: var(--text-0);
   font-family: var(--font-mono);
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::selection {
+  background: rgba(0, 212, 255, 0.2);
+  color: var(--text-0);
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-2); }
+
+/* ---- Animations ---- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes streamGlow {
+  0%, 100% { border-left-color: var(--accent); opacity: 0.7; }
+  50% { border-left-color: var(--accent-soft); opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}

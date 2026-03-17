@@ -6,27 +6,36 @@
 <header>
   <div class="left">
     <div class="logo">
-      <span class="logo-icon">◉</span>
+      <div class="logo-mark"></div>
       <span class="logo-text">llmview</span>
     </div>
     <div class="status" class:online={$connected}>
       <span class="dot"></span>
-      {$connected ? 'Live' : 'Disconnected'}
+      <span class="status-text">{$connected ? 'Live' : 'Disconnected'}</span>
     </div>
   </div>
 
   <div class="stats">
     <div class="stat">
-      <span class="stat-value cost">{formatCost($session.total_cost)}</span>
-      <span class="stat-label">Cost</span>
+      <div class="stat-indicator green"></div>
+      <div class="stat-content">
+        <span class="stat-value cost">{formatCost($session.total_cost)}</span>
+        <span class="stat-label">COST</span>
+      </div>
     </div>
     <div class="stat">
-      <span class="stat-value">{formatTokens($session.total_tokens)}</span>
-      <span class="stat-label">Tokens</span>
+      <div class="stat-indicator accent"></div>
+      <div class="stat-content">
+        <span class="stat-value">{formatTokens($session.total_tokens)}</span>
+        <span class="stat-label">TOKENS</span>
+      </div>
     </div>
     <div class="stat">
-      <span class="stat-value">{$session.request_count}</span>
-      <span class="stat-label">Requests</span>
+      <div class="stat-indicator orange"></div>
+      <div class="stat-content">
+        <span class="stat-value">{$session.request_count}</span>
+        <span class="stat-label">REQUESTS</span>
+      </div>
     </div>
   </div>
 </header>
@@ -36,34 +45,40 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
+    padding: 0 24px;
+    height: 56px;
     border-bottom: 1px solid var(--border);
-    background: var(--bg-1);
+    background: rgba(14, 14, 13, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(12px);
   }
 
   .left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
   }
 
   .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 
-  .logo-icon {
-    font-size: 20px;
-    color: var(--accent);
+  .logo-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    opacity: 0.9;
   }
 
   .logo-text {
-    font-size: 16px;
+    font-family: var(--font-sans);
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: -0.5px;
     color: var(--text-0);
@@ -73,10 +88,6 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 11px;
-    color: var(--text-2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
   }
 
   .dot {
@@ -84,36 +95,66 @@
     height: 6px;
     border-radius: 50%;
     background: var(--red);
+    transition: background 0.3s, box-shadow 0.3s;
   }
 
   .status.online .dot {
     background: var(--green);
-    box-shadow: 0 0 6px var(--green);
-    animation: pulse 2s infinite;
+    box-shadow: 0 0 8px rgba(102, 217, 142, 0.4);
+    animation: pulse 2.5s ease-in-out infinite;
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+  .status-text {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-2);
   }
 
   .stats {
     display: flex;
-    gap: 28px;
+    gap: 8px;
   }
 
   .stat {
     display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+  }
+
+  .stat:hover {
+    border-color: var(--border-hover);
+  }
+
+  .stat-indicator {
+    width: 3px;
+    height: 24px;
+    border-radius: 2px;
+  }
+
+  .stat-indicator.green { background: var(--green); }
+  .stat-indicator.accent { background: var(--accent); }
+  .stat-indicator.orange { background: var(--orange); }
+
+  .stat-content {
+    display: flex;
     flex-direction: column;
-    align-items: flex-end;
   }
 
   .stat-value {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--text-0);
     font-variant-numeric: tabular-nums;
     line-height: 1.2;
+    letter-spacing: -0.02em;
   }
 
   .stat-value.cost {
@@ -121,9 +162,10 @@
   }
 
   .stat-label {
-    font-size: 10px;
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 600;
     color: var(--text-2);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.1em;
   }
 </style>

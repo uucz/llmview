@@ -25,15 +25,6 @@ export function formatTime(ts: number): string {
   return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-export function providerColor(provider: string): string {
-  switch (provider) {
-    case 'openai': return '#10a37f';
-    case 'anthropic': return '#d4a274';
-    case 'ollama': return '#888888';
-    default: return '#666666';
-  }
-}
-
 export function statusColor(code: number): string {
   if (code === 0) return 'var(--text-2)';
   if (code >= 200 && code < 300) return 'var(--green)';
