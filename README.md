@@ -57,6 +57,9 @@ llmview sits between your AI tools and the API. **You change one environment var
 |---------|-------------|
 | **Real-time timeline** | Watch API calls stream in as they happen |
 | **Live token streaming** | See the response being generated token-by-token |
+| **Request/response viewer** | Parsed message threads + syntax-highlighted JSON bodies |
+| **Filter & search** | Filter by provider, status code, model. Search across all calls. |
+| **Export** | Download session data as JSON or CSV |
 | **Cost tracking** | Per-call and session-total cost with per-model pricing |
 | **Multi-provider** | OpenAI, Anthropic, Ollama — all through one dashboard |
 | **Zero code changes** | Just set an environment variable |
@@ -200,11 +203,13 @@ llmview-darwin-arm64
 - [x] Real-time proxy + dashboard
 - [x] Token cost tracking
 - [x] Multi-provider support
-- [ ] Request/response diff viewer
-- [ ] Export sessions to JSON/CSV
-- [ ] Filter & search calls
+- [x] Request/response detail viewer with message thread parsing
+- [x] Export sessions to JSON/CSV
+- [x] Filter & search calls by provider, status, model
 - [ ] VS Code extension
 - [ ] Breakpoints (pause before dangerous operations)
+- [ ] Prompt diff viewer (compare request variations)
+- [ ] Session history browser
 
 ## License
 

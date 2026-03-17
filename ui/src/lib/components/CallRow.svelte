@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { APICall } from '$lib/stores/events';
   import { formatDuration, formatCost, formatTokens, formatTime, statusColor } from '$lib/utils/format';
+  import DetailPanel from './DetailPanel.svelte';
 
   let { call, expanded = false, ontoggle, index = 0 }: {
     call: APICall;
@@ -63,7 +64,6 @@
         </span>
         <span class="tokens">
           {formatTokens(call.input_tokens)}
-          <!-- Arrow right icon, inline -->
           <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
             <line x1="5" y1="12" x2="19" y2="12" />
             <polyline points="12 5 19 12 12 19" />
@@ -81,14 +81,15 @@
     </div>
   </div>
 
-  {#if expanded && (call.streamText || call.error)}
-    <div class="call-detail">
-      {#if call.error}
-        <div class="error-box">{call.error}</div>
-      {/if}
-      {#if call.streamText}
-        <div class="stream-text">{call.streamText}</div>
-      {/if}
+  {#if expanded}
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+    <div class="call-detail" onclick={(e) => e.stopPropagation()}>
+      <DetailPanel
+        callId={call.id}
+        streamText={call.streamText}
+        error={call.error || ''}
+        completed={call.completed}
+      />
     </div>
   {/if}
 </div>
@@ -108,7 +109,6 @@
     overflow: hidden;
   }
 
-  /* Hover: only border-color, quiet confidence */
   .call:hover {
     border-color: rgba(217, 119, 87, 0.2);
   }
@@ -117,7 +117,6 @@
     border-color: rgba(217, 119, 87, 0.25);
   }
 
-  /* Left accent bars */
   .accent-bar {
     position: absolute;
     left: 0;
@@ -157,7 +156,6 @@
     flex-shrink: 0;
   }
 
-  /* Provider badge: low-opacity bg + subtle border (per DESIGN.md badge spec) */
   .provider-badge {
     font-family: var(--font-heading);
     font-size: 9.5px;
@@ -190,7 +188,6 @@
     flex-shrink: 0;
   }
 
-  /* Status code badge: semantic color bg at ~9% opacity */
   .status-badge {
     font-family: var(--font-heading);
     font-weight: 700;
@@ -267,31 +264,6 @@
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--border-subtle);
-    animation: fadeIn 0.2s ease;
-  }
-
-  .stream-text {
-    padding: 12px 14px;
-    background: var(--surface-2);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-subtle);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-secondary);
-    max-height: 320px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    line-height: 1.7;
-  }
-
-  .error-box {
-    padding: 10px 14px;
-    background: rgba(192, 90, 60, 0.08);
-    border: 1px solid rgba(192, 90, 60, 0.18);
-    border-radius: var(--radius-sm);
-    color: var(--risk-danger);
-    font-size: 12px;
-    margin-bottom: 8px;
+    cursor: default;
   }
 </style>

@@ -2,7 +2,8 @@
   import Header from '$lib/components/Header.svelte';
   import CallRow from '$lib/components/CallRow.svelte';
   import EmptyState from '$lib/components/EmptyState.svelte';
-  import { sortedCalls } from '$lib/stores/events';
+  import FilterBar from '$lib/components/FilterBar.svelte';
+  import { sortedCalls, filteredCalls } from '$lib/stores/events';
 
   let expandedId = $state<string | null>(null);
 
@@ -19,7 +20,8 @@
       <EmptyState />
     {:else}
       <div class="timeline">
-        {#each $sortedCalls as call, i (call.id)}
+        <FilterBar />
+        {#each $filteredCalls as call, i (call.id)}
           <CallRow
             {call}
             index={i}
@@ -27,6 +29,9 @@
             ontoggle={() => toggle(call.id)}
           />
         {/each}
+        {#if $filteredCalls.length === 0}
+          <div class="no-results">No calls match your filters</div>
+        {/if}
       </div>
     {/if}
   </main>
@@ -50,5 +55,13 @@
   .timeline {
     max-width: 960px;
     margin: 0 auto;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-tertiary);
+    font-family: var(--font-body);
+    font-size: 13px;
   }
 </style>
