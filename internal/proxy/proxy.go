@@ -28,6 +28,7 @@ type Proxy struct {
 	httpClient *http.Client
 	budget     float64
 	authCache  sync.Map // provider string -> map[string]string
+	insights   *InsightsEngine
 }
 
 // New creates a new Proxy instance.
@@ -42,6 +43,7 @@ func New(store *storage.Store, hub *ws.Hub, calc *cost.Calculator, sessionID str
 		httpClient: &http.Client{
 			Timeout: 5 * time.Minute, // LLM calls can be slow
 		},
+		insights: NewInsightsEngine(store, hub, calc, sessionID, budget),
 	}
 }
 
@@ -185,6 +187,9 @@ func (p *Proxy) handleProxy(w http.ResponseWriter, r *http.Request, pc ProviderC
 	if err := p.store.InsertCall(call); err != nil {
 		log.Printf("[proxy] store error: %v", err)
 	}
+
+	// Run insights analysis
+	go p.insights.Analyze(call, reqBody)
 
 	// Broadcast call end
 	p.hub.Broadcast(storage.WSEvent{
@@ -342,6 +347,11 @@ func (p *Proxy) FindProvider(provider storage.Provider) *ProviderConfig {
 // Budget returns the configured budget.
 func (p *Proxy) Budget() float64 {
 	return p.budget
+}
+
+// GetInsights returns computed insights from the insights engine.
+func (p *Proxy) GetInsights() []Insight {
+	return p.insights.ComputeInsights()
 }
 
 func extractModel(provider storage.Provider, body []byte) string {

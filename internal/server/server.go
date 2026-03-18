@@ -87,6 +87,9 @@ func (s *Server) Start() error {
 	// Config endpoint (budget info)
 	mux.HandleFunc("/api/config", s.handleConfig)
 
+	// Insights endpoint
+	mux.HandleFunc("/api/insights", s.handleInsights)
+
 	// Health check
 	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -181,6 +184,15 @@ func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"budget": s.proxy.Budget(),
 	})
+}
+
+func (s *Server) handleInsights(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	insights := s.proxy.GetInsights()
+	if insights == nil {
+		insights = []proxy.Insight{}
+	}
+	json.NewEncoder(w).Encode(insights)
 }
 
 // Close cleans up server resources.

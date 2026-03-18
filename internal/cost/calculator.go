@@ -86,3 +86,11 @@ func (c *Calculator) KnownModel(model string) bool {
 	}
 	return c.findByPrefix(model) != (ModelPricing{})
 }
+
+// GetPricing returns the pricing for a model, using prefix matching if needed.
+func (c *Calculator) GetPricing(model string) ModelPricing {
+	if p, ok := c.prices[model]; ok {
+		return p
+	}
+	return c.findByPrefix(model)
+}

@@ -3,6 +3,7 @@
   import CallRow from '$lib/components/CallRow.svelte';
   import EmptyState from '$lib/components/EmptyState.svelte';
   import FilterBar from '$lib/components/FilterBar.svelte';
+  import InsightsPanel from '$lib/components/InsightsPanel.svelte';
   import DiffView from '$lib/components/DiffView.svelte';
   import { sortedCalls, filteredCalls } from '$lib/stores/events';
   import { toggleTheme } from '$lib/stores/theme';
@@ -99,6 +100,8 @@
     {:else}
       <div class="timeline">
         <FilterBar {compareMode} ontogglecompare={toggleCompare} />
+
+        <InsightsPanel />
 
         {#if compareSelected.length === 2}
           <DiffView

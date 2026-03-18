@@ -174,6 +174,12 @@ function handleEvent(event: { type: string; data: any }) {
       budgetExceeded.set(true);
       break;
     }
+    case 'insight': {
+      // Real-time insight from backend
+      const insight = event.data as Insight;
+      insights.update(list => [insight, ...list]);
+      break;
+    }
   }
 }
 
@@ -257,6 +263,32 @@ async function loadConfig() {
       appConfig.set({ budget: cfg.budget || 0 });
     }
   } catch {}
+}
+
+// Insights
+export interface Insight {
+  type: 'loop_detected' | 'prompt_waste' | 'model_downgrade' | 'burn_rate';
+  severity: 'info' | 'warning' | 'critical';
+  title: string;
+  description: string;
+  savings?: number;
+  token_savings?: number;
+  call_ids?: string[];
+  detected_at: number;
+}
+
+export const insights = writable<Insight[]>([]);
+
+export async function fetchInsights(): Promise<Insight[]> {
+  try {
+    const resp = await fetch('/api/insights');
+    if (!resp.ok) return [];
+    const data: Insight[] = await resp.json();
+    insights.set(data);
+    return data;
+  } catch {
+    return [];
+  }
 }
 
 // Replay a stored call with optional overrides
